@@ -21,6 +21,9 @@ public class ProfileRepositoryJdbcImpl implements ProfilesRepository{
     //language=SQL
     public static final String SQL_FIND_BY_LOGIN = "SELECT * FROM profile WHERE email=?";
 
+    //language=SQL
+    public static final String SQL_DELETE = "DELETE FROM profile WHERE id=?";
+
 
     private DataSource dataSource;
 
@@ -49,7 +52,7 @@ public class ProfileRepositoryJdbcImpl implements ProfilesRepository{
 
     @Override
     public void delete(Profile entity) {
-
+        template.update(SQL_DELETE, entity.getId());
     }
 
     @Override

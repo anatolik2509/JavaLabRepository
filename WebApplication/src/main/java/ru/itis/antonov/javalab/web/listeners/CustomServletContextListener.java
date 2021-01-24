@@ -2,12 +2,11 @@ package ru.itis.antonov.javalab.web.listeners;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.template.Configuration;
 import ru.itis.antonov.javalab.web.models.Profile;
 import ru.itis.antonov.javalab.web.repositories.*;
-import ru.itis.antonov.javalab.web.services.SecurityService;
-import ru.itis.antonov.javalab.web.services.SecurityServiceRepImpl;
-import ru.itis.antonov.javalab.web.services.UsersService;
-import ru.itis.antonov.javalab.web.services.UsersServiceImpl;
+import ru.itis.antonov.javalab.web.services.*;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -48,9 +47,16 @@ public class CustomServletContextListener implements ServletContextListener {
         SessionRepository sessionRepository = new SessionRepositoryJdbcImpl(dataSource);
 
         SecurityService securityService = new SecurityServiceRepImpl(profilesRepository, sessionRepository);
+        Configuration configuration = new Configuration(Configuration.VERSION_2_3_30);
+        configuration.setDefaultEncoding("UTF-8");
+        configuration.setTemplateLoader(new ClassTemplateLoader(getClass().getClassLoader(), ""));
+
+        ProfileService profileService = new ProfileServiceJdbcImpl(profilesRepository);
 
         servletContext.setAttribute("usersService", usersService);
         servletContext.setAttribute("securityService", securityService);
+        servletContext.setAttribute("freemarkerConfig", configuration);
+        servletContext.setAttribute("profileService", profileService);
     }
 
     @Override

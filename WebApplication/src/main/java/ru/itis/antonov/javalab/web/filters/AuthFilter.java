@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter("*")
 public class AuthFilter implements Filter {
 
     private String[] protectedPaths;
@@ -19,7 +18,7 @@ public class AuthFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         context = filterConfig.getServletContext();
-        protectedPaths = new String[]{"/login", "/registration"};
+        protectedPaths = new String[]{"/login", "/registration","/css"};
         securityService = (SecurityService)context.getAttribute("securityService");
     }
 
@@ -37,13 +36,8 @@ public class AuthFilter implements Filter {
             filterChain.doFilter(request, response);
         }
         else {
-            if(request.getCookies() != null) {
-                for (Cookie c : request.getCookies()) {
-                    if (c.getName().equals("session") && securityService.isAuthenticated(c.getValue())) {
-                        filterChain.doFilter(request, response);
-                        return;
-                    }
-                }
+            if(request.getSession(false) != null) {
+                filterChain.doFilter(request, response);
             }
             response.sendRedirect(context.getContextPath() + "/login");
         }

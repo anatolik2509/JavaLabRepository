@@ -1,5 +1,9 @@
 package ru.itis.antonov.javalab.web.servlets;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import ru.itis.antonov.javalab.web.services.ProfileService;
 import ru.itis.antonov.javalab.web.services.SecurityService;
 
 import javax.servlet.ServletConfig;
@@ -11,25 +15,38 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @WebServlet("/registration")
 public class RegistrationServlet extends HttpServlet {
 
-    public static final String REGISTRATION_PATH = "/registration.jsp";
 
     private SecurityService securityService;
+    private ProfileService profileService;
     private ServletContext context;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         context = config.getServletContext();
         securityService = (SecurityService)context.getAttribute("securityService");
+        profileService = (ProfileService)context.getAttribute("profileService");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        context.getRequestDispatcher(REGISTRATION_PATH).forward(req, resp);
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("contextPath", context.getContextPath());
+        attributes.put("csrfToken", req.getAttribute("_csrf_token"));
+        Configuration configuration = (Configuration) context.getAttribute("freemarkerConfig");
+        Template template = configuration.getTemplate("registration.ftlh");
+        resp.setContentType("text/html; charset=utf-8");
+        try {
+            template.process(attributes, resp.getWriter());
+        } catch (TemplateException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -41,7 +58,7 @@ public class RegistrationServlet extends HttpServlet {
         }
         UUID id = UUID.randomUUID();
         if(securityService.register(login, password, id.toString())){
-            resp.addCookie(new Cookie("session", id.toString()));
+            req.getSession(true).setAttribute("profile", profileService.getByLogin(login));
             resp.sendRedirect(context.getContextPath() + "/users");
         }
     }

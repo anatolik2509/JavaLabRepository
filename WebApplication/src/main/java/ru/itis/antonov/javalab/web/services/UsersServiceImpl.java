@@ -21,5 +21,12 @@ public class UsersServiceImpl implements UsersService {
     public List<User> getByAge(int age) {
         return usersRepository.findAllByAge(age);
     }
+
+    @Override
+    public void deleteById(long id) {
+        usersRepository.delete(User.builder().id(id).build());
+    }
+
+
 }
 

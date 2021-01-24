@@ -8,7 +8,7 @@ import lombok.*;
 @EqualsAndHashCode
 @Builder
 public class Profile {
-    private int id;
+    private long id;
     private String login;
     private String password;
 }
