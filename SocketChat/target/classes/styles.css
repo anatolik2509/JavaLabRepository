@@ -1,0 +1,8 @@
+.status{
+    -fx-background-color: darkcyan;
+    -fx-max-height: 20px;
+}
+
+web-view{
+    -fx-min-height: 100%;
+}
